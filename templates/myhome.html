@@ -1,0 +1,228 @@
+{% extends 'public/layout.html' %}
+{% block app-page %}
+
+<el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-position="left" label-width="100px">
+    <el-form-item label="用户名" prop="username">
+        {% verbatim %}{{username}}{% endverbatim %}
+    </el-form-item>
+    <el-form-item label="密码">
+        <el-button type="primary" @click="changePassword=true;fieldsChange.push('password','checkpassword')"
+            v-if="!changePassword">点击修改密码</el-button>
+        <el-button type="primary" @click="remove('password');remove('checkpassword');changePassword=false;"
+            v-if="changePassword">取消修改密码</el-button>
+        <el-row style="width: 50%" v-if="changePassword">
+            <el-form-item label="新密码" prop="password" v-if="changePassword">
+                <el-input placeholder="请输入新密码" type="password" v-model="ruleForm.password" show-password></el-input>
+            </el-form-item>
+            <el-form-item label="确认密码" prop="checkpassword" v-if="changePassword">
+                <el-input placeholder="请再次输入密码" type="password" v-model="ruleForm.checkpassword" show-password>
+                </el-input>
+            </el-form-item>
+        </el-row>
+
+    </el-form-item>
+
+    <el-form-item label="昵称" prop="nickname">
+        <p v-if="!fieldsChange.includes('nickname')">{% verbatim %}{{ruleForm.nickname}}{% endverbatim %}
+            <el-link icon="el-icon-edit" :underline="false" v-if="!fieldsChange.includes('nickname')"
+                @click="fieldsChange.push('nickname')" size="mini">编辑</el-link>
+        </p>
+        <el-input placeholder="请输入昵称" type="text" v-model="ruleForm.nickname" v-if="fieldsChange.includes('nickname')"
+            style="width: 50%"></el-input>
+        <el-link icon="el-icon-edit" :underline="false" v-if="fieldsChange.includes('nickname')"
+            @click="remove('nickname')" size="mini">取消编辑</el-link>
+        </p>
+    </el-form-item>
+    <el-form-item label="邮箱" prop="mail">
+        <p v-if="!fieldsChange.includes('mail')">{% verbatim %}{{ruleForm.mail}}{% endverbatim %}
+            <el-link icon="el-icon-edit" :underline="false" v-if="!fieldsChange.includes('mail')"
+                @click="fieldsChange.push('mail')" size="mini">编辑</el-link>
+        </p>
+        <el-input placeholder="请输入邮箱" type="text" v-model="ruleForm.mail" v-if="fieldsChange.includes('mail')"
+            style="width: 50%"></el-input>
+        <el-link icon="el-icon-edit" :underline="false" v-if="fieldsChange.includes('mail')" @click="remove('mail')"
+            size="mini">取消编辑</el-link>
+        </p>
+    </el-form-item>
+    <el-form-item label="手机号" prop="phonenumber">
+        <p v-if="!fieldsChange.includes('phonenumber')">{% verbatim %}{{ruleForm.phonenumber}}{% endverbatim %}
+            <el-link icon="el-icon-edit" :underline="false" v-if="!fieldsChange.includes('phonenumber')"
+                @click="fieldsChange.push('phonenumber')" size="mini">编辑</el-link>
+        </p>
+        <el-input placeholder="请输入手机号" type="text" v-model="ruleForm.phonenumber"
+            v-if="fieldsChange.includes('phonenumber')" style="width: 50%"></el-input>
+        <el-link icon="el-icon-edit" :underline="false" v-if="fieldsChange.includes('phonenumber')"
+            @click="remove('phonenumber')" size="mini">取消编辑</el-link>
+        </p>
+    </el-form-item>
+    <el-form-item prop="vcode" label="验证码" v-if="fieldsChange.length !== 0">
+        <el-input placeholder="请输入验证码" type="text" v-model="ruleForm.vcode" maxLength='4' style="width: 30%"></el-input>
+        <el-button type="info" @click="generatedCode">{% verbatim %}{{ inicode }}{% endverbatim %}</el-button>
+    </el-form-item>
+    <div class="saveButton">
+        <el-button type="primary" @click="save" v-if="fieldsChange.length !== 0">保存</el-button>
+    </div>
+
+</el-form>
+{% endblock %}
+
+
+{% block js %}
+<script>
+    new Vue({
+        el: '#app',
+        router: router,
+        data() {
+            let validatePassword = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('新密码不能为空'));
+                } else {
+                    callback();
+                }
+            }
+            let validatePassword2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.password) {
+                    callback(new Error('两次输入密码不一致'));
+                } else {
+                    callback();
+                }
+            }
+            let validateVcode = (rule, value, callback) => {
+                value = value + ''
+                if (value === '') {
+                    callback(new Error('请输入验证码'));
+                } else if (value.toUpperCase() !== this.inicode.toUpperCase()) {
+                    callback(new Error('验证码错误'));
+                } else {
+                    callback();
+                }
+            }
+            return {
+                fieldsChange: [],
+                inicode: '点击获取验证码',
+                changePassword: false,
+                username: JSON.parse("{{jsondata|escapejs}}").data.username,
+                nickname: JSON.parse("{{jsondata|escapejs}}").data.NickName,
+                ruleForm: {
+                    password: '',
+                    checkpassword: '',
+                    mail: JSON.parse("{{jsondata|escapejs}}").data.email,
+                    nickname: JSON.parse("{{jsondata|escapejs}}").data.NickName,
+                    phonenumber: JSON.parse("{{jsondata|escapejs}}").data.phonenumber,
+                    vcode: '',
+                },
+                rules: {
+                    password: [
+                        { required: true, validator: validatePassword, trigger: 'blur' },
+                        { min: 6, max: 30, message: '长度在 6 到 30 个字符！' },
+                        { pattern: /^(\w){6,20}$/, message: '只能输入6-20个字母、数字、下划线' }
+                    ],
+                    checkpassword: [
+                        { required: true, validator: validatePassword2, trigger: 'blur' }
+                    ],
+                    mail: [
+                        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                        { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                    ],
+                    nickname: [
+                        { required: true, message: '请输入昵称', trigger: 'blur' },
+                        { pattern: /^[\u4E00-\u9FA5]+$/, message: '昵称必须为中文' }
+                    ],
+                    phonenumber: [
+                        { required: false, pattern: /^1[3|4|5|7|8][0-9]\d{8}$/, message: '请输入正确的11位手机号' }
+                    ],
+                    vcode: [
+                        { required: true, validator: validateVcode, trigger: 'blur' }
+                    ]
+                }
+            }
+        },
+        mounted() {
+        },
+        computed: {},
+        methods: {
+            remove(name) {
+                index = this.fieldsChange.indexOf(name);
+                this.fieldsChange.splice(index, 1);
+                console.log(this.fieldsChange)
+            },
+            generatedCode() {
+                const random = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+                    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+                let code = '';
+                for (let i = 0; i < 4; i++) {
+                    let index = Math.floor(Math.random() * 36);
+                    code += random[index];
+                }
+                this.inicode = code;
+            },
+            Logout() {
+                console.log("登出")
+                this.$message({
+                    type: 'info',
+                    message: '登出账户'
+                })
+                this.$router.poush({ 'path': '/logout/' })
+                window.location.reload();
+            },
+            save() {
+                let _self = this;
+                _self.fieldsChange.push('vcode');
+                Promise.all(_self.fieldsChange.map(item => {
+                    let p = new Promise(function (resolve, reject) {
+                        _self.$refs.ruleForm.validateField(item, (error) => {
+                            resolve(error)
+                        })
+                    });
+                    return p;
+                })).then((data) => {
+                    data = data.filter(item => item)
+                    if (!data.length) {
+                        console.log('通过验证')
+                        let req = {
+                            'username': _self.ruleForm.username,
+                            'password': _self.fieldsChange.includes('password') ? hex_md5(_self.ruleForm.password) : '',
+                            'email': _self.ruleForm.mail,
+                            'phonenumber': _self.ruleForm.phonenumber,
+                            'nickname': _self.ruleForm.nickname
+                        }
+                        console.log(req)
+                        axios.post(`/changeuserinfo/`, req,
+                            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(function (resp) {
+                                _self.$message({
+                                    type: 'success',
+                                    message: '修改成功'
+                                });
+                                setTimeout(() => {
+                                    window.location.reload()
+                                }, 100)
+                            })
+                    };
+                })
+            },
+        }
+    })
+</script>
+{% endblock %}
+
+{% block page-css %}
+<style>
+    .el-col {
+        border-radius: 4px;
+    }
+
+    .el-row {
+        margin: 20px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .saveButton {
+        text-align: center;
+    }
+</style>
+{% endblock %}

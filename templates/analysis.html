@@ -1,0 +1,244 @@
+
+{% extends 'public/layout.html' %}
+{% load static %}
+{% block app-page %}
+{% csrf_token %}
+<el-container>
+  <!-- 问卷页 -->
+  <el-main>
+    <el-row>
+      <el-col style="width:50%;">
+        <!-- 标题 -->
+        <h1 style="width:85%;">{%verbatim%}{{survey.name}}{%endverbatim%}</h1>
+        <div>
+          共收到有效问卷调查
+          <strong>{%verbatim%}{{survey.number}}{%endverbatim%}</strong>
+          份
+        </div>
+      </el-col>
+      <el-col style="width:50%">
+        <el-row>
+          <h5 style="width:85%;">{%verbatim%}{{survey.description}}{%endverbatim%}</h5>
+        </el-row>
+        <el-row>
+          <el-switch v-model="survey.status" active-text="开启问卷" disabled></el-switch>
+          <el-switch v-model="survey.type" active-text="允许匿名" style="margin-left:20px" disabled>
+          </el-switch>
+        </el-row>
+      </el-col>
+    </el-row>
+    <el-divider></el-divider>
+    <el-form :model="item" v-for="(item,index) in questions" :key="index">
+      <!-- 显示题目 -->
+      <el-form-item :label={%verbatim%}"index+1+'.'+item.title"{%endverbatim%}>
+      </el-form-item>
+      <!-- 显示描述 -->
+      <el-form-item>
+        {%verbatim%}{{item.option.description}}{%endverbatim%}
+      </el-form-item>
+      <!-- 展示表格数据 -->
+      <template>
+        <el-table
+          :data="answers[index].slice((currentPage[index]-1)*perPage,currentPage[index]*perPage)"
+          style="width: 100%" 
+          height="250"
+          border
+          :default-sort="{prop: 'date', order: 'descending'}">
+          <el-table-column prop="number" label="题号" sortable>
+          </el-table-column>
+          <el-table-column prop="username" label="用户名" sortable>
+          </el-table-column>
+          <el-table-column prop="option" label="选项或答案" sortable>
+          </el-table-column>
+          <el-table-column prop="time" label="提交时间" sortable>
+          </el-table-column>
+        </el-table>
+        <div id='page-nation'>
+          <el-pagination class="mc-ui-flex-center" layout="prev,pager,next" :total="answers[index].length" :page-size="perPage"
+            :current-page="currentPage[index]" :page-size="20" @current-change="(val) => handleCurrentChange(val,index)">
+          </el-pagination>
+        </div>
+      </template>
+      <!-- 展示饼状图，仅限选择、多选、下拉 -->
+      <template v-if="item.type === 'mutiselect' || item.type === 'select' || item.type === 'drop' ">
+        <div class="submit">
+          <div :id="'charts'+index" style="width: 600px;height:400px;" class="chart"></div>
+        </div>
+      </template>
+      <el-divider>{%verbatim%}{{"第 "+(index+1)+" 题"}}{%endverbatim%}</el-divider>
+    </el-form>
+  </el-main>
+</el-container>
+{% endblock %}
+{% block js %}
+<script>
+  /*
+   *  初始化图表
+   */
+  new Vue({
+    el: '#app',
+    router: router,
+    data() {
+      let ans = [];
+      let currentPage = [];
+      for( i = 0 ; i < JSON.parse("{{jsondata|escapejs}}").data.questionlist.length ; i ++ ){
+          ans.push([]);
+          currentPage.push(1);
+      }
+      console.log(JSON.parse("{{jsondata|escapejs}}").data);
+      return{
+        nickname: JSON.parse("{{jsondata|escapejs}}").data.NickName,
+        survey:{
+          name: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.SurveyName,
+          description: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.SurveyDescription,
+          status: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.SurveyStatus,
+          type: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.SurveyType,
+          number: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.number,
+        },
+        questions: [],
+        //answers: [new Array(JSON.parse("{{jsondata|escapejs}}").data.questionlist.length)],
+        answers: ans,
+        perPage: 5,
+        currentPage: currentPage,
+        Chart: [],
+      }
+    },
+    mounted () {
+      this.initQuestion();
+      this.initAnswer();
+      setTimeout(()=>{
+        this.initChars();
+      },100)
+
+    },
+    methods: {
+      mergeAnswer(index){
+        let _res = [];
+        let _self = this;
+        for(let i = 0; i < _self.questions[index].option.option.length; i++ ) {
+            let count = 0;
+            for(let j = 0; j < _self.answers[index].length; j++) {
+                if( _self.answers[index][j].option.indexOf(_self.questions[index].option.option[i].toString()) > -1 ) {
+                    count++;
+                }
+            }
+            _res.push({
+              value:count,
+              name: _self.questions[index].option.option[i],
+            })
+            // _res.title.push(_self.questions[index].option.option[i]);
+            // _res.num.push(count)
+        }
+        console.log(_res)
+        return _res;
+      },
+      initChars(){
+        let res = {};
+        let _self = this;
+        console.log(_self.questions)
+        _self.questions.map( (item,index) =>{
+          res = _self.mergeAnswer(index)
+          if( item.type === 'select' || item.type === 'multiselect' || item.type === 'drop' ){
+            // var myChart = echarts.init(document.getElementById('charts'+index));
+            console.log(_self.questions[index].option)
+            var option = {
+              title: {
+                text: `第${index+1}题`,
+                subtext: '饼状分析图',
+                left:'center',
+              },
+              tooltip:{
+                trigger: 'item',
+                formatter: '{a} <br/>{b} : {c} ({d}%)'
+              },
+              legend:{
+                orient: 'vertical',
+                data:_self.questions[index].option.option,
+                left: 'left'
+              },
+              series:[{
+                name: '人数',
+                type: 'pie',
+                data:res,
+                radius: '55%',
+                center: ['50%', '60%'],
+                emphasis:{
+                  itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+                }
+              }],
+            };
+            console.log(`charts${index}`)
+            console.log(document.getElementById(`charts${index}`))
+            var myChart = echarts.init(document.getElementById(`charts${index}`));
+            myChart.setOption(option);
+            _self.Chart.push({
+              myChart: myChart,
+              option: option
+            });
+            console.log(_self.Chart)
+          }
+        })
+      },
+      handleCurrentChange(val,index){
+        this.$set(this.currentPage,index,val);
+      },
+      onSubmit(){
+        console.log(this.mergeAnswer(0))
+      },
+      initQuestion() {
+        console.log(JSON.parse("{{jsondata|escapejs}}"))
+        let vm = this;
+        let temptable = JSON.parse("{{jsondata|escapejs}}").data.questionlist;
+        let temptable2 = JSON.parse("{{jsondata|escapejs}}").data.answerlist;
+        temptable.map((item,index) => {
+            vm.questions.push({
+              type: item.QType,
+              title: item.QTitle,
+              number: item.QNumber - 1,
+              option: {
+                'option': item.QOptions === '' ? "" : JSON.parse(item.QOptions),
+                'description': item.QDescription,
+              }
+            })
+          });
+      },
+      initAnswer() {
+        let vm = this;
+        let temptable2 = JSON.parse("{{jsondata|escapejs}}").data.answerlist;
+        temptable2.map((item) => {
+          vm.answers[item.ANum].push({
+            number: item.ANum+1,
+            username: item.username,
+            option: item.AOption.replace("[", '').replace(']', ''),
+            time: item.Time,
+          });
+        })
+      }
+    }
+  })
+</script>
+{% endblock %}
+
+{% block page-css %}
+<style>
+  .el-pagination {
+    text-align: center;
+  }
+  .el-col{
+    border-radius: 4px;
+  }
+  .el-row {
+    margin-bottom: 20px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  .submit{
+    text-align: center;
+  }
+</style>
+{% endblock %}

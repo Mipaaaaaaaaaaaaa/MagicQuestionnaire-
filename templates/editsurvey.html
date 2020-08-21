@@ -1,0 +1,528 @@
+
+ {% extends 'public/layout.html' %}
+ {% block app-page %}
+ <el-container>
+   <!-- 工具栏 -->
+   <el-aside width='200px' style="margin-left:20px">
+     <el-row style="width: 100%" style="text-align: center; margin: auto;">
+         <el-button type="primary" size="mini" @click="saveData">保存</el-button>
+         <el-button type="danger" size="mini" @click="resetData">重置</el-button>
+         <el-button type="plain" size="mini" @click="returnIndex">返回</el-button>
+       </el-row>
+         <el-divider></el-divider>
+       <el-row style="width: 100%">
+         <el-button icon="el-icon-edit-outline" @click="insert('blank')">填空</el-button>
+         <el-button icon="el-icon-circle-check" @click="insert('select')">单选</el-button>
+       </el-row>
+       <el-row style="width: 100%">
+         <el-button icon="el-icon-success" @click="insert('mutiselect')">多选</el-button>
+         <el-button icon="el-icon-caret-bottom" @click="insert('drop')">下拉</el-button>
+        </el-row>
+          <el-button icon="el-icon-s-unfold" @click="insert('cascade')">级联</el-button>
+          <el-button icon="el-icon-circle-plus-outline" @click="insert('select','mark')">评分</el-button>
+         <el-divider></el-divider>
+       <el-row style="width: 100%">
+         <el-button icon="el-icon-timer" @click="insert('time')">时间</el-button>
+         <el-button icon="el-icon-date" @click="insert('timeslot')">时段</el-button>
+       </el-row>
+         <el-divider></el-divider>
+       <el-row style="width: 100%">
+         <el-button icon="el-icon-user-solid" @click="insert('blank','age')">年龄</el-button>
+         <el-button icon="el-icon-phone" @click="insert('blank','phonenumber')">电话</el-button>
+       </el-row>
+         <el-button icon="el-icon-female" @click="insert('select','sex')">性别</el-button>
+         <el-button icon="el-icon-chat-dot-round" @click="insert('blank','wechat')">微信</el-button>
+
+        
+ </el-aside>
+ 
+ <el-main>
+   <el-row>
+     <el-col style="width:50%;">
+        <!-- 修改标题 -->
+       <h1 @click="changeableTitle=!changeableTitle" v-if="!changeableTitle" style="width:85%;">{%verbatim%}{{survey_title}}{%endverbatim%}</h1>
+       <el-input v-model="survey_title" 
+       placeholder={%verbatim%}"survey_title"{%endverbatim%} 
+       v-if="changeableTitle" 
+       @keyup.enter.native="changeableTitle=!changeableTitle"
+       size="large"
+       focus
+       style="width:70%;"></el-input>
+       <el-button type="primary" v-if="changeableTitle" @click="changeableTitle=false">保存</el-button>
+       <el-button type="primary" v-if="!changeableTitle" @click="changeableTitle=true" size="mini">编辑</el-button>
+     </el-col>
+     <el-col style="width:50%"> 
+       <el-row>
+       <el-input v-model="survey_description" 
+       placeholder={%verbatim%}"survey_description"{%endverbatim%} 
+       v-if="changeableDescription" 
+       @keyup.enter.native="changeableDescription=!changeableDescription"
+       size="large"
+       focus
+       style="width:70%;"
+       type="textarea"
+       maxlength="100"
+       show-word-limit
+       ></el-input>
+       <el-button type="primary" v-if="changeableDescription" @click="changeableDescription=false" size="mini">保存</el-button>
+       <el-button type="primary" v-if="!changeableDescription" @click="changeableDescription=true" size="mini">编辑</el-button>
+       <h5 @click="changeableDescription=!changeableDescription" v-if="!changeableDescription" style="width:85%;">{%verbatim%}{{survey_description}}{%endverbatim%}</h5>
+     </el-row>
+    <el-row>
+      <el-switch
+      v-model="survey_status"
+      active-text="开启问卷"></el-switch>
+      <el-switch
+      v-model="survey_type"
+      active-text="允许匿名"
+      style="margin-left:20px"></el-switch>
+      <p>请注意：开启问卷后编辑问卷，已经收集的回答会被删除！</p>
+    </el-row>
+   </el-col>
+   </el-row>
+   <el-divider></el-divider>
+   <el-form :model="item" v-for="(item,index) in questions"  :key="index">
+     <!-- 显示题目 -->
+     <el-form-item :label={%verbatim%}"index+1+'.'+item.title"{%endverbatim%} v-if="!questions[index].changeableTitle">
+       <el-link icon="el-icon-edit" :underline="false" v-if="!questions[index].changeableTitle" @click="questions[index].changeableTitle=true" size="mini">编辑</el-link>
+       <el-link icon="el-icon-delete" :underline="false" v-if="!questions[index].changeableTitle" @click="removeItem(index)" size="mini">删除</el-link>
+     </el-form-item>
+       <!-- 修改题目 -->
+       <el-form-item v-if="questions[index].changeableTitle">
+         <el-input v-model="questions[index].title"
+         placeholder={%verbatim%}"item.title"{%endverbatim%}
+         size="large"
+         style="width:70%;"></el-input>
+         <el-link icon="el-icon-document" :underline="false" @click="questions[index].changeableTitle=false" size="mini">保存</el-link>
+       </el-form-item>
+     <!-- 显示描述 -->
+     <el-form-item v-if="!questions[index].changeableDescription" >
+       <el-link type="info" :underline="false" @click="questions[index].changeableDescription=true">{%verbatim%}{{item.option.description}}{%endverbatim%}</el-link>
+       <el-link icon="el-icon-edit" :underline="false" @click="questions[index].changeableDescription=true" size="mini">编辑</el-link>
+     </el-form-item>
+      <!-- 修改描述 -->
+     <el-form-item  v-if="questions[index].changeableDescription" >
+       <el-input v-model="questions[index].option.description"
+         placeholder={%verbatim%}"item.option.description"{%endverbatim%}
+         size="large"
+         style="width:70%;"
+         type="textarea"></el-input>
+         <el-link icon="el-icon-document" :underline="false" @click="questions[index].changeableDescription=false" size="mini">保存</el-link>
+     </el-form-item>
+     
+   <!-- 展示问卷效果 -->
+   <!-- 展示填空 -->
+   <el-form-item  v-if="questions[index].type === 'blank' ">
+     <el-input placeholder="用户在此输入答案" v-if="questions[index].type === 'blank' " :disabled="true" style="width:70%;"></el-input>
+   </el-form-item>
+   <!-- 展示时间段 -->
+   <el-form-item  v-if="questions[index].type === 'timeslot' ">
+     <div class="block" v-if="questions[index].type === 'timeslot' ">
+       <span class="demonstration">用户在此选择时间区间</span>
+       <br>
+       <el-date-picker
+         type="datetimerange"
+         range-separator="至"
+         start-placeholder="开始日期"
+         end-placeholder="结束日期"
+         text-align="right"
+         disabled
+         >
+       </el-date-picker>
+     </div>
+   </el-form-item>
+   <!-- 展示时间 -->
+   <el-form-item v-if="questions[index].type === 'time' ">
+     <el-time-select
+       v-if="questions[index].type === 'time' "
+       :picker-options="{
+         start: '08:30',
+         step: '00:15',
+         end: '18:30'
+       }"
+       placeholder="用户在此选择时间"
+       disabled>
+   </el-form-item>
+   <!-- 展示单选 -->
+   <el-form-item v-if="item.type ==='select'||item.type==='mutiselect'">
+     <el-button type="primary" @click="item.option.option.push('新选项')" v-if="item.type ==='select'||item.type==='mutiselect'" size="small">添加选项</el-button>
+   </el-form-item>
+   <el-form-item v-if="item.type ==='select'">
+     <el-radio-group v-for="(opt,idx) in item.option.option" :key="opt">
+       <el-radio v-if="item.option.changeable !== idx">{%verbatim%}{{opt}}{%endverbatim%}</el-radio>
+       <el-button type="danger" size="mini" @click="item.option.option.splice(idx,1)" v-if="item.option.changeable !== idx">删除</el-button>
+       <el-button type="primary" size="mini" @click="item.option.changeable=idx" v-if="item.option.changeable !== idx">编辑</el-button>
+       <el-input v-model="item.option.option[idx]" placeholder={%verbatim%}"item.option.option[idx]"{%endverbatim%} v-if="item.option.changeable === idx" style="width:70%;"></el-input>
+       <el-button type="primary" size="mini" @click="item.option.changeable=-1" v-if="item.option.changeable === idx">保存</el-button>
+       <el-divider direction="vertical" v-if="idx !== item.option.option.length-1"></el-divider>
+     </el-radio-group>
+   </el-form-item>
+   <!-- 展示多选 -->
+   <el-form-item v-if="item.type ==='mutiselect'">
+     <template v-for="(opt,idx) in item.option.option">
+       <el-row>
+       <el-checkbox v-if="item.option.changeable !== idx">{%verbatim%}{{opt}}{%endverbatim%}</el-checkbox>
+       <el-button type="danger" size="mini" @click="item.option.option.splice(idx,1)" v-if="item.option.changeable !== idx">删除</el-button>
+       <el-button type="primary" size="mini" @click="item.option.changeable=idx" v-if="item.option.changeable !== idx">编辑</el-button>
+       <el-input v-model="item.option.option[idx]" placeholder={%verbatim%}"item.option.option[idx]"{%endverbatim%} v-if="item.option.changeable === idx" style="width:70%;"></el-input>
+       <el-button type="primary" size="mini" @click="item.option.changeable=-1" v-if="item.option.changeable === idx">保存</el-button>
+     </el-row>
+     </template>
+   </el-form-item>
+   <!-- 展示下拉 -->
+   <el-form-item v-if="item.type ==='drop'">
+     <el-row>
+       <el-button type="primary" @click="item.option.option.push('新选项')"size="small">添加选项</el-button>
+     </el-row>
+     <el-row>
+       <el-select v-model="value" placeholder="请选择" v-if="item.type ==='drop'">
+         <el-option
+           v-for="(it,idx) in item.option.option"
+           :key="it"
+           :value="it"
+           :label="item.option.option[idx]"
+           allow-create
+           filterable> 
+         </el-option>
+       </el-select>
+       <el-button type="danger" size="mini" @click="item.option.option.splice(item.option.option.indexOf(value),1);" v-if="value!==''">删除</el-button>
+       <el-input v-model="changeIndex" placeholder="请输入修改内容" style="width:40%;"></el-input>
+       <el-button type="primary" size="mini" @click="item.option.option[item.option.option.indexOf(value)]=changeIndex;changeIndex=''" v-if="value!==''">保存</el-button>
+     </el-row>
+   </el-form-item>
+   <!-- 展示地区信息 -->
+   <el-form-item label="" v-if="item.type==='position'">
+       <el-input placeholder="用户在此输入答案" :disabled="true" style="width:70%;"></el-input>
+   </el-form-item>
+   <el-divider>{%verbatim%}{{"第 "+(index+1)+" 题"}}{%endverbatim%}</el-divider>
+   </el-form>
+ </el-main>
+ </el-container>
+ {% endblock %}
+ {% block js %}
+   <script>
+     new Vue({
+       el: '#app',
+       router: router,
+       data() {
+           return{
+           //username:"/surveylist/mipa/".split('/')[2],
+           //let usrname = window.location.pathname.split('/')[2];
+           questions: [],
+           changeableTitle: false,
+           changeableDescription: false,
+           changeIndex: "",
+           value: "",
+           survey_title: JSON.parse("{{jsondata|escapejs}}").data.survey_name,
+           survey_description: JSON.parse("{{jsondata|escapejs}}").data.survey_description,
+           survey_status: JSON.parse("{{jsondata|escapejs}}").data.survey_status,
+           survey_type: JSON.parse("{{jsondata|escapejs}}").data.survey_type,
+           nickname: JSON.parse("{{jsondata|escapejs}}").data.nickname,
+           uuid_s: JSON.parse("{{jsondata|escapejs}}").data.uuid_s,
+           username: JSON.parse("{{jsondata|escapejs}}").data.username,
+         }
+       },
+       mounted() {
+         this.initFormData()
+         console.log(this.questions)
+       },
+       computed: {},
+       methods: {
+        Logout(){
+            this.$message({
+                type: 'info',
+                message: '登出账户'
+            })
+            this.$router.poush({'path':'/logout/'})
+            window.location.reload();
+        },
+         initFormData() {
+          let vm = this;
+          let temptable = JSON.parse("{{jsondata|escapejs}}").data.questionlist;
+          temptable.map((item)=>{
+            console.log(item)
+            this.questions.push({
+              type:item.QType,
+              title:item.QTitle,
+              changeableTitle:false,
+              changeableDescription:false,
+              option:{
+                'option': item.QOptions === '' ? "" : JSON.parse(item.QOptions),
+                'description':item.QDescription,
+                'changeable':-1,
+              }
+            })
+          })
+         },
+         returnIndex(){
+          let _self = this;
+          this.$confirm('确认返回主页吗？这将导致未保存的表项丢失','确认信息',{
+                distinguishCancelAndClose: true,
+                confirmButtonText: '确认',
+                cancelButtonText: '取消',
+            }).then(()=>{
+                _self.$message({
+                  type: 'info',
+                  message: '返回主页'
+                })
+                setTimeout(()=>{
+                  router.push({path:`/surveylist/`});
+                  window.location.reload();
+                },300)
+            }).catch(()=>{
+              _self.$message({
+                  type: 'info',
+                  message: '已取消返回'
+              })
+            })
+          },
+         saveData(){
+            let questionlist = [];
+            this.questions.map((item,index) =>{
+                questionlist.push({
+                    QNumber: index+1,
+                    QType: item.type,
+                    QDescription: item.option.description,
+                    QTitle: item.title,
+                    QOptions: item.option.option ? JSON.stringify(item.option.option) : "",
+                })
+            })
+            let req = {
+                uuid_s: this.uuid_s,
+                username: this.username,
+                questionlist: questionlist,
+                survey_name: this.survey_title,
+                survey_description: this.survey_description,
+                survey_type: this.survey_type,
+                survey_status: this.survey_status
+            }
+            console.log(req);
+            let _self = this;
+            axios.post(`/editfinish/${this.uuid_s}`, req, 
+            {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}).then(function (resp) {
+                _self.$message({
+                 type: 'success',
+                 message: '保存修改'
+               });
+            })
+         },
+         resetData(){
+           let _self=this;
+           this.$confirm('确认重置表单吗？这将删除所有表项。','提醒',{
+             confirmButtonText:"确定",
+             cancelButtonText:"取消",
+             type:'warning'
+           }).then(()=>{
+             _self.questions=[];
+             _self.survey_title="标题";
+             _self.survey_description="描述";
+             _self.survey_type=false;
+             _self.survey_status=false;
+             _self.$message({
+               type:'success',
+               message:"已重置表单！"
+             });
+           }).catch(()=>{
+            _self.$message({
+               type:'info',
+               message:"取消重置"
+             });
+           });
+         },
+         removeItem(index){
+           let _self=this;
+           this.$confirm('确认删除该问题吗？','提醒',{
+             confirmButtonText:"确定",
+             cancelButtonText:"取消",
+             type:'warning'
+           }).then(()=>{
+             _self.questions.splice(index,1);
+             _self.$message({
+               type:'success',
+               message:"已删除该问题"
+             });
+           }).catch(()=>{
+            _self.$message({
+               type:'info',
+               message:"取消删除"
+             });
+           });
+         },
+         insert(type,sample=""){
+           switch(type){
+               case "blank":
+                 switch(sample){
+                   case "age":
+                   this.questions.push({
+                       type:"blank",
+                       title:"年龄",
+                       changeableTitle:false,
+                       changeableDescription:false,
+                       option:{
+                         'description':'请输入年龄'
+                       }
+                     })
+                     break;
+                   case "phonenumber":
+                   this.questions.push({
+                         type:"blank",
+                         title:"手机号",
+                         changeableTitle:false,
+                         changeableDescription:false,
+                         option:{
+                           'description':'请输入手机号'
+                         }
+                       })
+                     break;
+                   case "wechat":
+                   this.questions.push({
+                           type:"blank",
+                           title:"微信号",
+                           changeableTitle:false,
+                           changeableDescription:false,
+                           option:{
+                             'description':'请输入微信号'
+                           }
+                         })
+                     break;
+                   default:
+                   this.questions.push({
+                             type:"blank",
+                             title:"吕秀才对姬无命说的最后一句话是什么？",
+                             changeableTitle:false,
+                             changeableDescription:false,
+                             option:{
+                               'description':'你品，你仔细品'
+                             }
+                           })
+                     break;
+                 }
+                 break;
+               case "select":
+                 switch(sample){
+                   case "sex":
+                   this.questions.push({
+                               type:"select",
+                               title:"性别",
+                               changeableTitle:false,
+                               changeableDescription:false,
+                               changeableSelection:false,
+                               option:{
+                                 'description':'请选择性别',
+                                 'option':['男','女'],
+                                 'changeable':-1,
+                               }
+                             })
+                     break;
+                  case "mark":
+                  this.questions.push({
+                               type:"select",
+                               title:"评分",
+                               changeableTitle:false,
+                               changeableDescription:false,
+                               changeableSelection:false,
+                               option:{
+                                 'description':'请选择评分',
+                                 'option':['1','2','3','4','5'],
+                                 'changeable':-1,
+                               }
+                             })
+                     break;
+                   default:
+                   this.questions.push({
+                                 type:"select",
+                                 title:"吃葡萄不吐葡萄皮的话你还愿意吃葡萄吗？",
+                                 changeableTitle:false,
+                                 changeableDescription:false,
+                                 changeableSelection:false,
+                                 option:{
+                                   'description':'一定要遵从内心的选择！',
+                                   'option':['吃葡萄','不吃葡萄'],
+                                   'changeable':-1,
+                                 }
+                               })
+                     break;
+                 }
+                 break;
+               case "time":
+               this.questions.push({
+                                 type:"time",
+                                 title:"截止日期",
+                                 changeableTitle:false,
+                                 changeableDescription:false,
+                                 option:{
+                                   'description':'请填写作业截止日期',
+                                 }
+                               })
+                 break;
+               case "mutiselect":
+               this.questions.push({
+                                 type:"mutiselect",
+                                 title:"喜欢的运动",
+                                 changeableTitle:false,
+                                 changeableDescription:false,
+                                 changeableSelection:false,
+                                 option:{
+                                   'description':'可多选，请选择你喜欢的运动',
+                                   'option':['吃饭','睡觉','看漫画','蹲马桶'],
+                                   'changeable':-1,
+                                 }
+                               })
+                 break;
+               case "drop":
+               this.questions.push({
+                                   type:"drop",
+                                   title:"年级",
+                                   changeableTitle:false,
+                                   changeableDescription:false,
+                                   changeableSelection:false,
+                                   option:{
+                                     'description':'请选择您的年级',
+                                     'option':['大一','大二','大三','大四'],
+                                     'changeable':-1,
+                                   }
+                                 })
+                 break;
+               case "cascade":
+                this.questions.push({
+                  type:'select',
+                  title:'是否返校',
+                  changeableTitle: false,
+                  changeableDescription: false,
+                  option:{
+
+                  }
+                })
+                break;
+               case "timeslot":
+                 this.questions.push({
+                                     type:"timeslot",
+                                     title:"在校时间",
+                                     changeableTitle:false,
+                                     changeableDescription:false,
+                                     option:{
+                                       'description':'请输入您的在校时间段',
+                                     }
+                                   })
+                 break;
+           }
+           console.log(this.questions);
+         },
+       }
+     })
+   </script>
+ {% endblock %}
+ 
+ {% block page-css %}
+ <style>
+   .el-col{
+     border-radius: 4px;
+   }
+   .el-row {
+     margin-bottom: 20px;
+     &:last-child {
+       margin-bottom: 0;
+     }
+   }
+ </style>
+ {% endblock %}

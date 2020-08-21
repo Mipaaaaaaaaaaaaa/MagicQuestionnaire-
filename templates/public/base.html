@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="x-ua-compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>魔法问卷调查管理系统</title>
+  <!-- Add this to <head> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+  <!-- 引入样式 -->
+{#  <link rel="stylesheet" href="{% static 'css/element.css' %}">#}
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <style>
+    #app {
+      margin-top: 50px;
+      /*text-align:center;*/
+    }
+    html,body{
+      width:100%;
+      height:100%;
+      padding: 0px;
+         /*外部间距也是如此设置*/
+      margin: 0px;
+        /*统一设置高度为100%*/
+      height: 100%;
+    }
+    body{
+      background-image: url("{% static 'index/images/banner1.png' %}") ;
+      background-size: 100%;
+      background-position: 0 0;
+      background-repeat: no-repeat;
+    }
+  </style>
+  {% block css %}{% endblock %}
+</head>
+<body>
+  <div id="app" class="container">
+    {% block body %}{% endblock %}
+  </div>
+  <!-- Add this after vue.js -->
+  <script src="{% static 'JS/vue.js' %}"></script>
+    <!-- 引入组件库 -->
+  <script src="{% static 'JS/element-ui.js' %}"></script>
+  <script src="{% static 'JS/axios.js' %}"></script>
+  <script src="{% static 'JS/jquery.js' %}"></script>
+  <script src="{% static 'JS/md5.js' %}"></script>
+  <script src="{% static 'JS/echarts.js' %}"></script>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script>
+    Vue.use(VueRouter);
+    console.log("生成");
+    const originalPush = VueRouter.prototype.push;
+    VueRouter.prototype.push = function push(location) {
+      return originalPush.call(this, location).catch(err => err)
+    };
+    const ip = '127.0.0.1:8000'
+    const routes = [{path:"/",name:"index"},{path:"/login",name:"login"},{path:"/surveylist/",name:"surveylist"}]
+    const router = new VueRouter({
+	    routes: routes,
+      linkActiveClass:'active', // 修改选中的css  默认为router-link-active
+      mode: 'history'
+  })
+  </script>
+  {% block js %}{% endblock %}
+</body>
+</html>

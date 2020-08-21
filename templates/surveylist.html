@@ -1,0 +1,188 @@
+
+{% extends 'public/layout.html' %}
+{% block app-page %}
+
+<el-row>
+  <el-col style="width: 49.827%;" :xs="12" :sm="12">
+    <el-input v-model="preSearch" placeholder="请输入关键字">
+    </el-input>
+  </el-col>
+  <el-col :xs="12" :sm="12">
+    <el-button @click="search=preSearch">搜索</el-button>
+    <el-button type="primary" @click="createPage">添加问卷</el-button>
+  </el-col>
+</el-row>
+
+<template>
+
+  <el-table
+    :data="tableData.filter(data => !search || (data.SurveyName+data.SurveyStatus).includes(search)).slice((currentPage-1)*perPage,currentPage*perPage)"
+    style="width: 100%" :default-sort="{prop: 'date', order: 'descending'}">
+    <el-table-column prop="SurveyName" label="问卷名" sortable>
+    </el-table-column>
+    <el-table-column label="状态" sortable width="100px">
+      <template slot-scope="scope">
+        {%verbatim%}{{scope.row.SurveyStatus===true ? "开启":"关闭"}}{%endverbatim%}
+      </template>
+    </el-table-column>
+    <el-table-column label="匿名" sortable width="100px">
+      <template slot-scope="scope">
+        {%verbatim%}{{scope.row.SurveyType===true ? "开启":"关闭"}}{%endverbatim%}
+      </template>
+    </el-table-column>
+    <el-table-column prop="LastEditTime" label="上次修改时间" sortable>
+    </el-table-column>
+    <el-table-column prop="number" label="填表人数" sortable>
+    </el-table-column>
+    <el-table-column label="操作" width="300">
+      <template slot-scope="scope">
+        <el-button mc-type="column-el-button" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑
+        </el-button>
+        <el-button mc-type="column-el-button" size="mini" type="success" @click="handleShare(scope.$index, scope.row)">
+          分享</el-button>
+        <el-button mc-type="column-el-button" size="mini" type="success"
+          @click="handleAnalyse(scope.$index, scope.row)">分析</el-button>
+        <el-button mc-type="column-el-button" size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">
+          删除</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <div id='page-nation'>
+    <el-pagination class="mc-ui-flex-center" layout="prev,pager,next" :total="total" :page-size="perPage"
+      :current-page="currentPage" :page-size="20" @current-change="handleCurrentChange">
+    </el-pagination>
+  </div>
+</template>
+
+{% endblock %}
+{% block js %}
+<script>
+  new Vue({
+    el: '#app',
+    router: router,
+    data: {
+      // 数据数量
+      total: JSON.parse("{{jsondata|escapejs}}").data.surveylist.length,
+      // 一页多少条
+      perPage: 20,
+      // 当前页码
+      currentPage: 1,
+      // 搜索字段值
+      orderingFields: ['name'],
+      ordering: '',
+      search: '',
+      preSearch: '',
+      tableData: JSON.parse("{{jsondata|escapejs}}").data.surveylist,
+      nickname: JSON.parse("{{jsondata|escapejs}}").data.nickname
+    },
+
+    mounted() {
+      console.log(this.tableData)
+    },
+    methods: {
+      Logout() {
+        console.log("登出")
+        this.$message({
+          type: 'info',
+          message: '登出账户'
+        })
+        this.$router.poush({ 'path': '/logout/' })
+        window.location.reload();
+      },
+      createPage() {
+        let req = {
+          'survey_name': "新问卷",
+          'survey_description': "请编辑问卷描述，以方便填表人更好地理解问卷信息。",
+          'survey_type': false,
+        }
+        let _self = this;
+        axios.post('/createsurvey/', req, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(function (res) {
+          console.log(res)
+          if (res.data.success === true) {
+            _self.$confirm('创建成功，是否进入编辑页面？', '创建成功', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+            }).then(() => {
+              router.push({ 'path': `/editsurvey/${res.data.data.UUID_S}` });
+              window.location.reload();
+            }).catch(() => {
+              window.location.reload();
+            })
+          } else {
+            _self.$message({
+              type: 'error',
+              message: `创建失败，${res.data.error_message}`
+            })
+          }
+        });
+        //this.$router.push({'path':'/editsurvey/unknown'});
+        //window.location.reload();
+      },
+      handleCurrentChange(val){
+        this.$set(this.currentPage,0,val);
+      },
+      handleDelete(index, row) {
+        let _self = this;
+        this.$confirm('确认删除表单吗？这将会删除所有填写数据。', '提示').then(() => {
+          axios.post(`/deletesurvey/${_self.tableData[index].UUID_S}`).then(function (res) {
+            if (res.data.success === true) {
+              _self.$message({
+                type: 'success',
+                message: "删除成功"
+              })
+              setTimeout(() => {
+                window.location.reload();
+              }, 100)
+            } else {
+              _self.$message({
+                type: 'error',
+                message: `删除失败，${res.data.error_message}`
+              })
+            }
+          });
+        }).catch(() => {
+          _self.$message({
+            type: 'info',
+            message: '取消删除'
+          })
+        })
+        console.log(index, row);
+      },
+      handleEdit(index, row) {
+        console.log(index, row);
+        this.$router.replace(`/editsurvey/${this.tableData[index].UUID_S}`);
+        window.location.reload();
+      },
+      handleShare(index, row) {
+        console.log(index, row);
+        var Url = ip + `/survey/${this.tableData[index].UUID_S}`;
+        var oInput = document.createElement('input');
+        oInput.value = Url;
+        document.body.appendChild(oInput);
+        oInput.select(); // 选择对象
+        document.execCommand("Copy"); // 执行浏览器复制命令
+        oInput.className = 'oInput';
+        oInput.style.display = 'none';
+        this.$message({
+          type: 'success',
+          message: "已将链接复制至剪切板！"
+        })
+      },
+      handleAnalyse(index, row) {
+        console.log(index, row);
+        this.$router.push(`/surveyanalysis/${this.tableData[index].UUID_S}`)
+        window.location.reload();
+      },
+    }
+  })
+
+</script>
+{% endblock %}
+
+{% block page-css %}
+<style>
+  .el-pagination {
+    text-align: center;
+  }
+</style>
+{% endblock %}

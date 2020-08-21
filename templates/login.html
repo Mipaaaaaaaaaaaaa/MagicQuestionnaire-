@@ -1,0 +1,259 @@
+
+{% extends 'public/layout_login.html' %}
+{% block app-page %}
+{% csrf_token %}
+
+<div id="page-login">
+    <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-position="left" label-width="100px">
+        <el-form-item label="用户名" prop="username">
+            <el-input placeholder="请输入用户名" type="text" v-model="ruleForm.username" autofocus></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+            <el-input placeholder="请输入密码" type="password" v-model="ruleForm.password" show-password></el-input>
+        </el-form-item>
+        <div id="llogin" v-show="isLogin">
+            <el-row type="flex" class="row-bg" justify="space-around">
+                <el-button type="primary" @click="login">登录</el-button>
+                <el-button type="plain" @click="toSignup">注册</el-button>
+            </el-row>
+        </div>
+        <div id="signup" v-show="isSignup">
+            <el-form-item label="确认密码" prop="checkpassword">
+                <el-input placeholder="请再次输入密码" type="password" v-model="ruleForm.checkpassword" show-password>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="昵称" prop="nickname">
+                <el-input placeholder="请输入昵称" type="text" v-model="ruleForm.nickname"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="mail">
+                <el-input placeholder="请输入邮箱" type="text" v-model="ruleForm.mail"></el-input>
+            </el-form-item>
+            <el-form-item label="手机号" prop="phonenumber">
+                <el-input placeholder="选填，请输入手机号" type="text" v-model="ruleForm.phonenumber"></el-input>
+            </el-form-item>
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item prop="vcode" label="验证码">
+                        <el-input placeholder="请输入验证码" type="text" v-model="ruleForm.vcode" maxLength='4'></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12" style="text-align:left">
+                    <el-button type="info" @click="generatedCode">{% verbatim %}{{ inicode }}{% endverbatim %}
+                    </el-button>
+                </el-col>
+            </el-row>
+            <el-row type="flex" class="row-bg" justify="space-around">
+                <el-button type="plain" @click="toLogin">登录</el-button>
+                <el-button type="primary" @click="signup">注册</el-button>
+            </el-row>
+        </div>
+    </el-form>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+    new Vue({
+        el: '#app',
+        router:router,
+        data() {
+            let isLogin = true;
+            let isSignup = false;
+            let validateUsername = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('用户名不能为空'));
+                } else {
+                    callback();
+                }
+            };
+            let validatePassword = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('密码不能为空'));
+                } else {
+                    callback();
+                }
+            };
+            let validatePassword2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.password) {
+                    callback(new Error('两次输入密码不一致'));
+                } else {
+                    callback();
+                }
+            }
+            let validateVcode = (rule, value, callback) => {
+                value = value + ''
+                if (value === '') {
+                    callback(new Error('请输入验证码'));
+                } else if (value.toUpperCase() !== this.inicode.toUpperCase()) {
+                    callback(new Error('验证码错误'));
+                } else {
+                    callback();
+                }
+            }
+            return {
+                isLogin: isLogin,
+                isSignup: isSignup,
+                inicode: '点击获取验证码',
+                ruleForm: {
+                    username: 'miap',
+                    password: '123123',
+                    checkpassword: '123123',
+                    mail: '1@qq.com',
+                    nickname: '咪啪',
+                    phonenumber: '',
+                    vcode: '',
+                },
+                rules: {
+                    username: [
+                        { required: true, validator: validateUsername, trigger: 'blur' },
+                        { min: 4, max: 18, message: '长度在 4 到 18 个字符' },
+                        { pattern: /^(\w){4,18}$/, message: '只能包含字符、数字和下划线' }
+                    ],
+                    password: [
+                        { required: true, validator: validatePassword, trigger: 'blur' },
+                        { min: 6, max: 30, message: '长度在 6 到 30 个字符！' },
+                        { pattern: /^(\w){6,20}$/, message: '只能输入6-20个字母、数字、下划线' }
+                    ],
+                    checkpassword: [
+                        { required: false, validator: validatePassword2, trigger: 'blur' }
+                    ],
+                    mail: [
+                        { required: false, message: '请输入邮箱地址', trigger: 'blur' },
+                        { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                    ],
+                    nickname: [
+                        { required: false, message: '请输入昵称', trigger: 'blur' },
+                        { pattern: /^[\u4E00-\u9FA5]+$/, message: '昵称必须为中文' }
+                    ],
+                    phonenumber: [
+                        { required: false, pattern: /^1[3|4|5|7|8][0-9]\d{8}$/, message: '请输入正确的11位手机号' }
+                    ],
+                    vcode: [
+                        { required: false, validator: validateVcode, trigger: 'blur' }
+                    ]
+                }
+            };
+        },
+        mounted() {
+            this.toLogin();
+        },
+        methods: {
+            generatedCode() {
+                const random = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+                    'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+                let code = '';
+                for (let i = 0; i < 4; i++) {
+                    let index = Math.floor(Math.random() * 36);
+                    code += random[index];
+                }
+                this.inicode = code;
+            },
+            //跳转到登录
+            toLogin() {
+                this.$set(this, 'isLogin', true);
+                this.$set(this, 'isSignup', false);
+                this.$set(this.rules.nickname[0], 'required', false);
+                this.$set(this.rules.checkpassword[0], 'required', false);
+                this.$set(this.rules.vcode[0], 'required', false);
+                this.$set(this.rules.mail[0], 'required', false);
+            },
+            //跳转到注册
+            toSignup() {
+                this.$set(this, 'isLogin', false);
+                this.$set(this, 'isSignup', true);
+                this.$set(this.rules.nickname[0], 'required', true);
+                this.$set(this.rules.checkpassword[0], 'required', true);
+                this.$set(this.rules.vcode[0], 'required', true);
+                this.$set(this.rules.mail[0], 'required', true);
+            },
+            //登录
+            login() {
+                let fieldsLogin = ['username', 'password'];
+                let _self = this;
+                Promise.all(fieldsLogin.map(item => {
+                    let p = new Promise(function (resolve, reject) {
+                        _self.$refs.ruleForm.validateField(item, (error) => {
+                            resolve(error)
+                        })
+                    });
+                    return p;
+                })).then((data) => {
+                    // data 里是各个字段的验证错误信息, 如果为空串则认为验证通过, 如果数组里全为空串则所有验证通过
+                    // 判断data 里是否全是空串
+                    // 去除数组空值
+                    data = data.filter(item => item)
+                    if (!data.length) {
+                        console.log('通过验证')
+                        let req = {
+                            'type': 'login',
+                            'username': _self.ruleForm.username,
+                            'password': hex_md5(_self.ruleForm.password),
+                        };
+                        axios.post(`/loginresult/`, req, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}).then(function (resp) {
+                            console.log(resp);
+                            if( resp.data.success === false ){
+                                alert(resp.data.data.error_message)
+                            }
+                            else{
+                                this.$message({
+                                    type: 'success',
+                                    message: '登录成功'
+                                });
+                                setTimeout(function(){
+                                    router.push({name:'surveylist'});
+                                    window.location.reload();
+                                },200)
+                            }
+                        }.bind(_self))
+                    } else {
+                        console.log('验证不通过')
+                        alert("8行哦");
+                    }
+                })
+            },
+            resetForm() {
+                this.$refs['ruleForm'].resetFields();
+            },
+            //注册
+            signup() {
+                console.log('注册啦注册啦！')
+                let _self = this;
+                _self.$refs['ruleForm'].validate((valid) => {
+                    if (valid) {
+                        // 书写登录逻辑
+                        req = {
+                            'type': 'register',
+                            'username': _self.ruleForm.username,
+                            'password': hex_md5(_self.ruleForm.password),
+                            'email': _self.ruleForm.mail,
+                            'phonenumber': _self.ruleForm.phonenumber,
+                            'nickname': _self.ruleForm.nickname
+                        };
+                        axios.post(`/loginresult/`, req).then(function (resp) {
+                            if( resp.data.success === false ){
+                                alert(resp.data.data.error_message)
+                            }
+                            else{
+                                alert('注册成功');
+                                _self.toLogin()
+                            }
+                        })
+                    } else {
+                        return false;
+                    }
+                });
+            }
+        }
+    })
+</script>
+{% endblock %}
+
+{% block page-css %}
+<style>
+    .box-card {
+        text-align: center;
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}

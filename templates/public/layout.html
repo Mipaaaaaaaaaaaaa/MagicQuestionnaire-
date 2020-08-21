@@ -1,0 +1,42 @@
+{% extends 'public/base.html' %}
+{% block body %}
+{% load static %}
+<div class="my-card">
+  <el-card>
+    <el-row>
+      <el-col class="title-line" style="width: 100%;" :xs="12" :sm="12">
+          <h4 class="el-icon-user">&emsp;{%verbatim%}{{nickname}}{%endverbatim%}&emsp;</h4>
+          <el-link icon="el-icon-edit" :underline="false" href="/myhome/" >编辑个人信息</el-link>
+          <el-divider direction="vertical"></el-divider>
+            <el-button><a href='/surveylist/'>主页</a></el-button>
+          <el-divider direction="vertical"></el-divider>
+            <el-button><a href='/logout/'>注销</a></el-button>
+      </el-col>
+      <el-col>
+        <el-divider></el-divider>
+      </el-col>
+    </el-row>
+    <el-row>
+      {% block app-page %}{% endblock %}
+    </el-row>
+  </el-card>
+</div>
+{% endblock %}
+{% block js %}
+<div class="footer">
+  <el-footer>
+          <h5 style="text-align: center;margin-top:  25px;">Copyright &copy; magicmipamipa  <a target="_blank" href="https://github.com/Mipaaaaaaaaaaaaa">点这里康康我的git</a></h5>
+  </el-footer>
+</div>
+{% endblock %}
+
+{% block css %}
+<style>
+  .title-line{
+    text-align:right;
+  }
+  a:hover {text-decoration: none;} 
+</style>
+{% block page-css %}
+{% endblock %}
+{% endblock %}

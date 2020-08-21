@@ -1,0 +1,215 @@
+
+ {% extends 'public/layout.html' %}
+ {% block app-page %}
+ <el-container>
+   <!-- 问卷页 -->
+ <el-main>
+   <el-row>
+     <el-col style="width:50%;">
+        <!-- 标题 -->
+       <h1 style="width:85%;">{%verbatim%}{{survey_title}}{%endverbatim%}</h1>
+     </el-col>
+     <el-col style="width:50%"> 
+       <el-row>
+       <h5 style="width:85%;">{%verbatim%}{{survey_description}}{%endverbatim%}</h5>
+     </el-row>
+     <el-row>
+       <el-switch
+       v-model="survey_status"
+       active-text="开启问卷"
+       disabled></el-switch>
+       <el-switch
+       v-model="survey_type"
+       active-text="允许匿名"
+       style="margin-left:20px"
+       disabled>
+     </el-switch>
+   </el-row>
+   </el-col>
+   </el-row>
+   <el-divider></el-divider>
+   <el-form :model="item" v-for="(item,index) in questions"  :key="index">
+     <!-- 显示题目 -->
+     <el-form-item :label={%verbatim%}"index+1+'.'+item.title"{%endverbatim%}>
+     </el-form-item>
+     <!-- 显示描述 -->
+     <el-form-item >
+       {%verbatim%}{{item.option.description}}{%endverbatim%}
+     </el-form-item>
+      <!-- 修改描述 -->
+   <!-- 展示问卷效果 -->
+   <!-- 展示填空 -->
+   <el-form-item  v-if="questions[index].type === 'blank' ">
+     <el-input placeholder="请输入答案" v-model="answers[index].ans" style="width:70%;"></el-input>
+   </el-form-item>
+   <!-- 展示时间段 -->
+   <el-form-item  v-if="questions[index].type === 'timeslot' ">
+     <div class="block" v-if="questions[index].type === 'timeslot' ">
+       <el-date-picker
+         v-model="answers[index].ans"
+         type="datetimerange"
+         :picker-options="pickerOptions"
+         range-separator="至"
+         start-placeholder="开始日期"
+         end-placeholder="结束日期"
+         text-align="right"
+         >
+       </el-date-picker>
+     </div>
+   </el-form-item>
+   <!-- 展示时间 -->
+   <el-form-item v-if="questions[index].type === 'time' ">
+    <el-date-picker
+      v-model="answers[index].ans"
+      type="datetime"
+      placeholder="请选择时间">
+    </el-date-picker>
+   </el-form-item>
+   <!-- 展示单选 -->
+   <el-form-item v-if="item.type ==='select'">
+     <el-radio-group v-for="(opt,idx) in item.option.option" :key="opt" v-model="answers[index].ans">
+       <el-radio :label={%verbatim%}"idx"{%endverbatim%}>{%verbatim%}{{opt}}{%endverbatim%}</el-radio>
+       <el-divider direction="vertical" v-if="idx !== item.option.option.length-1"></el-divider>
+     </el-radio-group>
+   </el-form-item>
+   <!-- 展示多选 -->
+   <el-form-item v-if="item.type ==='mutiselect'">
+       <el-checkbox :label={%verbatim%}"opt"{%endverbatim%} v-model="answers[index].ans" v-for="(opt,idx) in item.option.option" :key="opt" >{%verbatim%}{{opt}}{%endverbatim%}</el-checkbox>
+   </el-form-item>
+   <!-- 展示下拉 -->
+   <el-form-item v-if="item.type ==='drop'">
+       <el-select v-model="answers[index].ans" placeholder="请选择" >
+         <el-option
+           v-for="(it,idx) in item.option.option"
+           :key="it"
+           :value="idx"
+           :label={%verbatim%}"it"{%endverbatim%}
+           > 
+         </el-option>
+       </el-select>
+   </el-form-item>
+   <!-- 展示地区信息 -->
+   <el-form-item v-if="item.type==='position'">
+       <el-input placeholder="请输入地区信息" style="width:70%;" v-model='answers[index].ans'></el-input>
+   </el-form-item>
+   <el-divider>{%verbatim%}{{"第 "+(index+1)+" 题"}}{%endverbatim%}</el-divider>
+   </el-form>
+    <div class="submit">
+      <el-button type="primary" @click="onSubmit">提交</el-button>  
+    </div>
+ </el-main>
+
+ </el-container>
+ {% endblock %}
+ {% block js %}
+   <script>
+     new Vue({
+       el: '#app',
+       router: router,
+       data() {
+           return{
+           questions: [],
+           changeableTitle: false,
+           changeableDescription: false,
+           changeIndex: "",
+           survey_title: JSON.parse("{{jsondata|escapejs}}").data.survey_name,
+           survey_description: JSON.parse("{{jsondata|escapejs}}").data.survey_description,
+          //  survey_status: JSON.parse("{{jsondata|escapejs}}").data.survey_status,
+           survey_type: JSON.parse("{{jsondata|escapejs}}").data.survey_type,
+           nickname: JSON.parse("{{jsondata|escapejs}}").data.nickname,
+           uuid_s: JSON.parse("{{jsondata|escapejs}}").data.uuid_s,
+           username: JSON.parse("{{jsondata|escapejs}}").data.username,
+           answers: [],
+         }
+       },
+       mounted() {
+         this.initFormData()
+       },
+       computed: {},
+       methods: {
+        Logout(){
+          console.log("登出")
+            this.$message({
+                type: 'info',
+                message: '登出账户'
+            })
+            this.$router.poush({'path':'/logout/'})
+            window.location.reload();
+        },
+         initFormData(){
+          let vm = this;
+          let temptable = JSON.parse("{{jsondata|escapejs}}").data.questionlist;
+          temptable.map((item)=>{
+            console.log(item)
+            this.questions.push({
+              type:item.QType,
+              title:item.QTitle,
+              option:{
+                'option': item.QOptions === '' ? "" : JSON.parse(item.QOptions),
+                'description':item.QDescription,
+              }
+            })
+            this.answers.push({
+              ans:[],
+              type:item.QType,
+            })
+          })
+         },
+         onSubmit() {
+           let req = {
+              answer:[],
+           }
+           let flag = false;
+           let _self = this;
+           this.answers.map((item,index)=>{
+             req.answer.push({
+               AOptions: item.type === 'mutiselect' ? JSON.stringify(item.ans) : ""+item.ans+"",
+               ANum: index,
+               UUID_S: _self.uuid_s,
+             });
+             if(req.answer[index].AOptions === ""){
+               _self.$message({
+                 type:'error',
+                 message:`第${index+1}题未完成`
+               })
+               flag = true;
+             }
+             console.log(req)
+           })
+           if( !flag ){
+            console.log(req);
+            axios.post(`/fillresult/${_self.uuid_s}`, req, 
+            {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}).then(function (resp) {
+                _self.$message({
+                  type:'success',
+                  message:'提交成功'
+                });
+                // setTimeout(()=>{
+                //   //router.push({'path':`/thanks/${_self.uuid_s}`})
+                  // window.location.replace(resp)
+                // },100)
+            })
+           }
+         },
+       }
+     })
+   </script>
+ {% endblock %}
+ 
+ 
+ {% block page-css %}
+ <style>
+   .el-col{
+     border-radius: 4px;
+   }
+   .el-row {
+     margin-bottom: 20px;
+     &:last-child {
+       margin-bottom: 0;
+     }
+   }
+   .submit{
+     text-align: center;
+   }
+ </style>
+ {% endblock %}

@@ -1,0 +1,105 @@
+
+{% load static %}
+<!-- <h1>handle</h1> -->
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- META -->
+    <meta charset="UTF-8">
+    <meta name="author" content="author name" />
+    <meta name="description" content="Here goes description">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
+
+    <!-- SITE TITLE -->
+    <title>魔法问卷管理系统</title>
+
+    <!-- FAVICON -->
+    <link rel="icon" href="{% static 'handle/images/favicon/favicon.png' %}">
+    <link rel="icon" href="{% static 'handle/images/favicon/favicon.png' %}" sizes="57x57">
+    <link rel="icon" href="{% static 'handle/images/favicon/favicon.png' %}" sizes="72x72">
+    <link rel="icon" href="{% static 'handle/images/favicon/favicon.png' %}" sizes="114x114">
+    <link rel="icon" href="{% static 'handle/images/favicon/favicon.png' %}" sizes="144x144">
+
+    <!-- STYLE -->
+    <link rel="stylesheet" href="{% static 'handle/css/style.css' %}">
+
+</head>
+
+<body>
+    <!-- START PRELOADER -->
+    <div id="preloader">
+        <div class="loader">
+            <div class="loader-container">
+                <div class="loader-border-top"></div>
+                <div class="loader-border-bottom"></div>
+            </div>
+            <div class="loader-square"></div>
+        </div>
+    </div>
+    <!-- END OF PRELOADER -->
+    <div class="wrapper">
+        <div class="contact-btn-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="headline-title">
+                            <h1>{{htmldata.data.messagetitle}}</h1>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="contact-btn">
+                            <a href="/">回到首页</a>
+                        </div>
+                    </div>
+                </div><!-- END OF /. ROW -->
+            </div><!-- END OF /. CONTAINER -->
+        </div><!-- END OF /. CONTACT BUTTON SECTION -->
+
+        <!-- START SLIDER SECTION -->
+        <div class="slider-section">
+            <div class="container-fluid">
+                <div class="row">
+                    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner" role="listbox">
+                            <div class="item active">
+                                <img src="{% static 'handle/images/slider/1.jpg' %}" width="1920" height="725" alt="">
+                                <div class="carousel-caption">
+                                    <p style="height: 80px;">{{htmldata.data.message}}</p>
+                                    <p style="font-size:30px;height: 80px"><b>咪啪的<span>魔法</span>问卷系统</b></p>
+                                </div>
+                            </div><!-- END OF /. SLIDER ITEM -->
+                        </div><!-- END OF /. CAROUSEL INNE-->
+                    </div><!-- END OF /. CAROUSEL -->
+                </div>
+            </div><!-- END OF /. CONTAINER FLUID -->
+        </div><!-- END OF /. SELIDER SECTION -->
+        <!-- START FOOTER SECTION -->
+        <div class="footer-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>只是课程作业！非商用! <a target="_blank" href="http://sc.chinaz.com/moban/">从这里下载的！</a></p>
+                        <!-- <a href="#top" class="top-button"></a> -->
+                    </div><!-- END OF /. COLUMN -->
+                </div><!-- END OF /. ROW -->
+            </div><!-- END OF /. CONTAINER -->
+        </div><!-- END OF/. FOOTER SECTION -->
+    </div>
+
+    <!-- JQUERY LIBERY -->
+    <script src="{% static 'handle/js/vendor/jquery-1.11.2.min.js' %}"></script>
+    <!-- BOOTSTRAP -->
+    <script src="{% static 'handle/js/vendor/bootstrap.min.js' %}"></script>
+    <!-- APPEAR JS  -->
+    <script src="{% static 'handle/js/jquery.appear.js' %}"></script>
+    <!-- WAYPOINTS -->
+    <!-- CUSTOM JS -->
+    <script src="{% static 'handle/js/jquery.counterup.min.js' %}"></script>
+    <!-- CUSTOM JS -->
+    <script src="{% static 'handle/js/custom.js' %}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+{% extends 'public/base.html' %}
+{% block body %}
+{% load static %}
+
+<div class="section">
+<el-card class="box-card" :body-style="{ padding: '100px' }">
+    <div slot="header" class="clearfix"  text-align="center">
+        <span><h2>魔法问卷调查系统</h2></span>
+    </div>
+    {% block app-page %}{% endblock %}
+</el-card>
+</div>
+<div class="footer">
+    <el-footer>
+            <h5 style="text-align: center;margin-top:  25px;">Copyright &copy; magicmipamipa  <a target="_blank" href="https://github.com/Mipaaaaaaaaaaaaa">点这里康康我的git</a></h5>
+    </el-footer>
+</div>
+{% endblock %}
+
+{% block css %}
+<style>
+    .box-card{
+        text-align:center;
+        margin:20 auto;
+    }
+</style>
+{% block page-css %}
+{% endblock %}
+{% endblock %}

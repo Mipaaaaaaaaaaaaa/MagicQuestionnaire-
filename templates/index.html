@@ -1,0 +1,168 @@
+
+{% load static %}
+
+  <!DOCTYPE html>
+  <html lang="en">
+  
+  <head>
+    <!-- basic -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- mobile metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <!-- site metas -->
+    <title>魔法问卷管理系统</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- bootstrap css -->
+    <!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="{% static 'index/css/bootstrap.min.css' %}">
+    <!-- style css -->
+    <link rel="stylesheet" href="{% static 'index/css/style.css' %}">
+    <!-- Responsive-->
+    <link rel="stylesheet" href="{% static 'index/css/responsive.css' %}">
+    <!-- fevicon -->
+    <link rel="icon" href="{% static 'index/images/fevicon.png' %}" type="image/gif" />
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="{% static 'index/css/jquery.mCustomScrollbar.min.css' %}">
+    <!-- Tweaks for older IEs-->
+    <link rel="stylesheet" href="{% static 'index/css/font-awesome.css' %}">
+    <link rel="stylesheet" href="{% static 'index/css/jquery.fancybox.min.css' %}" media="screen">
+
+  </head>
+  <!-- body -->
+  
+  <body class="main-layout">
+  
+    <!-- header -->
+    <header>
+      <!-- header inner -->
+      <div class="head_top">
+        <div class="header">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col logo_section">
+                <div class="full">
+                  <div class="center-desk">
+                    <div class="logo">
+                      <a href="/"><img src="{% static 'index/images/logo.png' %}" alt="#" /></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9">
+                <nav class="navigation navbar navbar-expand-md navbar-dark ">
+                  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04"
+                    aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarsExample04">
+                    <ul class="navbar-nav mr-auto">
+                      <li class="nav-item">
+                        <a class="nav-link" href="/">主页 </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="/login/"> 注册/登陆 </a>
+                      </li>
+                    </ul>
+                  </div>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- end header inner -->
+        <!-- end header -->
+        <!-- banner -->
+        <section class="banner_main">
+          <div class="container-fluid">
+            <div class="row d_flex">
+              <div class="col-md-6">
+                <div class="text-bg">
+                  <h1>咪啪的魔法问卷！</h1>
+                  <p>这是一个问卷系统！快来编辑你自己的问卷吧！</p>
+                  <a href="/login/">现在就来！</a>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="text-img">
+                  <figure><img src="{% static 'index/images/box_img.png' %}" alt="#" /></figure>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </header>
+    <!-- end banner -->
+    <!-- business -->
+    <div class="business">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="titlepage">
+              <span>魔法问卷管理系统</span>
+              <h2>方便地发布自己地问卷</h2>
+              <p> 新建、编辑、删除问卷，创建你自己的问题，发布给大家 </p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-10 offset-md-1">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="business_box ">
+                  <figure><img src="{% static 'index/images/business_img.jpg' %}" alt="#" /></figure>
+                  <p>只需要注册一个账号，你就能编辑并发布自己的问卷。</p>
+                  <a class="read_more" href="/login/">我来了我来了！！</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end business -->
+  
+    <!--  footer -->
+    <footer>
+      <div class="footer">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12 ">
+              <div class="cont">
+                <h3> <strong class="multi">魔法问卷管理系统</strong><br>
+                  By Magicfamily
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="copyright">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12">
+                <p>非商用，仅仅是课程作业！ &copy; magicmipamipa  <a target="_blank" href="https://github.com/Mipaaaaaaaaaaaaa">点这里康康我的git</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- end footer -->
+    <!-- Javascript files-->
+    <script src="{% static 'index/js/jquery.min.js' %}"></script>
+    <script src="{% static 'index/js/popper.min.js' %}"></script>
+    <script src="{% static 'index/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'index/js/jquery-3.0.0.min.js' %}"></script>
+    <script src="{% static 'index/js/plugin.js' %}"></script>
+    <!-- sidebar -->
+    <script src="{% static 'index/js/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+    <script src="{% static 'index/js/custom.js' %}"></script>
+    <script src="{% static 'index/js/jquery.fancybox.min.js' %}"></script>
+  </body>
+  
+  </html>
