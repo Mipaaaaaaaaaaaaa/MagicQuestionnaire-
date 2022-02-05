@@ -92,6 +92,30 @@
    <el-form-item v-if="item.type==='position'">
        <el-input placeholder="请输入地区信息" style="width:70%;" v-model='answers[index].ans'></el-input>
    </el-form-item>
+   <!-- 展示组表 -->
+   <!-- 展示表格信息 -->
+   <el-form-item label="" v-if="item.type==='table'">
+      <el-table style="width: 100%" :data="item.option.option[0]">
+        <template v-for="(sample,idx) in item.option.option[1]">
+        <el-table-column
+          label="sample"
+          width="180">
+          <template slot="header" slot-scope="scope">
+            <p>{%verbatim%}{{item.option.option[1][idx]}}{%endverbatim%}</p>
+          </template>
+          <template slot-scope="scope">
+            <template v-if="idx !== 0">
+              <el-radio v-model="answers[index].ans[scope.$index]" :label="item.option.option[1][idx]"> </el-radio>
+            </template>
+            <template v-if="idx === 0">
+              <p>{%verbatim%}{{item.option.option[0][scope.$index]}}{%endverbatim%}</p>
+            </template>
+          </template>
+        </el-table-column>
+      </template>
+      </el-table>
+    </template>
+   </el-form-item>
    <el-divider>{%verbatim%}{{"第 "+(index+1)+" 题"}}{%endverbatim%}</el-divider>
    </el-form>
     <div class="submit">

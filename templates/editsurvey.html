@@ -18,7 +18,7 @@
          <el-button icon="el-icon-success" @click="insert('mutiselect')">多选</el-button>
          <el-button icon="el-icon-caret-bottom" @click="insert('drop')">下拉</el-button>
         </el-row>
-          <el-button icon="el-icon-s-unfold" @click="insert('cascade')">级联</el-button>
+          <el-button icon="el-icon-s-unfold" @click="insert('table')">表格</el-button>
           <el-button icon="el-icon-circle-plus-outline" @click="insert('select','mark')">评分</el-button>
          <el-divider></el-divider>
        <el-row style="width: 100%">
@@ -149,7 +149,7 @@
    </el-form-item>
    <el-form-item v-if="item.type ==='select'">
      <el-radio-group v-for="(opt,idx) in item.option.option" :key="opt">
-       <el-radio v-if="item.option.changeable !== idx">{%verbatim%}{{opt}}{%endverbatim%}</el-radio>
+       <el-radio v-if="item.option.changeable !== idx" :label="opt"></el-radio>
        <el-button type="danger" size="mini" @click="item.option.option.splice(idx,1)" v-if="item.option.changeable !== idx">删除</el-button>
        <el-button type="primary" size="mini" @click="item.option.changeable=idx" v-if="item.option.changeable !== idx">编辑</el-button>
        <el-input v-model="item.option.option[idx]" placeholder={%verbatim%}"item.option.option[idx]"{%endverbatim%} v-if="item.option.changeable === idx" style="width:70%;"></el-input>
@@ -193,6 +193,40 @@
    <!-- 展示地区信息 -->
    <el-form-item label="" v-if="item.type==='position'">
        <el-input placeholder="用户在此输入答案" :disabled="true" style="width:70%;"></el-input>
+   </el-form-item>
+   <!-- 展示表格信息 -->
+   <el-form-item label="" v-if="item.type==='table'">
+    <el-button @click="item.option.option[0].push('新建行')">添加行</el-button>
+    <el-button @click="item.option.option[1].push('新建列')">添加列</el-button>
+    <el-button @click="item.option.option[0].splice(0,item.option.option[0].length);item.option.option[1].splice(0,item.option.option[1].length);">清空</el-button>
+      <el-table style="width: 100%" :data="item.option.option[0]">
+        <template v-for="(sample,idx) in item.option.option[1]">
+        <el-table-column
+          label="sample"
+          width="180">
+          <template slot="header" slot-scope="scope">
+            <p v-if="item.option.changeable !== (idx+1)*10" >{%verbatim%}{{item.option.option[1][idx]}}{%endverbatim%}</p>
+            <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="item.option.option[1].splice(idx,1)" v-if="item.option.changeable !== (idx+1)*10" ></el-button>
+            <el-button type="primary" icon="el-icon-edit-outline" circle size="mini" @click="item.option.changeable=(idx+1)*10" v-if="item.option.changeable !== (idx+1)*10"  ></el-button>
+            <el-input v-model="item.option.option[1][idx]" placeholder="" v-if="item.option.changeable === (idx+1)*10" style="width:70%;"></el-input>
+            <el-button type="primary" icon="el-icon-check" circle size="mini" @click="item.option.changeable=-1" v-if="item.option.changeable === (idx+1)*10"  ></el-button>
+          </template>
+          <template slot-scope="scope">
+            <template v-if="idx !== 0">
+              <el-radio v-model="item.option.option[2][scope.$index]" :label="item.option.option[1][idx]"> </el-radio>
+            </template>
+            <template v-if="idx === 0">
+              <p v-if="item.option.changeable !== scope.$index">{%verbatim%}{{item.option.option[0][scope.$index]}}{%endverbatim%}</p>
+              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="item.option.option[0].splice(scope.$index,1)" v-if="item.option.changeable !== scope.$index" ></el-button>
+              <el-button type="primary" icon="el-icon-edit-outline" circle size="mini" @click="item.option.changeable=scope.$index" v-if="item.option.changeable !== scope.$index"  ></el-button>
+              <el-input v-model="item.option.option[0][scope.$index]" placeholder="" v-if="item.option.changeable === scope.$index" style="width:70%;"></el-input>
+              <el-button type="primary" icon="el-icon-check" circle size="mini" @click="item.option.changeable=-1" v-if="item.option.changeable === scope.$index"  ></el-button>
+            </template>
+          </template>
+        </el-table-column>
+      </template>
+      </el-table>
+    </template>
    </el-form-item>
    <el-divider>{%verbatim%}{{"第 "+(index+1)+" 题"}}{%endverbatim%}</el-divider>
    </el-form>
@@ -483,17 +517,20 @@
                                    }
                                  })
                  break;
-               case "cascade":
-                this.questions.push({
-                  type:'select',
-                  title:'是否返校',
-                  changeableTitle: false,
-                  changeableDescription: false,
-                  option:{
-
-                  }
-                })
-                break;
+               case "table":
+               this.questions.push({
+                                   type:"table",
+                                   title:"对XX问题的看法",
+                                   changeableTitle:false,
+                                   changeableDescription:false,
+                                   changeableSelection:false,
+                                   option:{
+                                     'description':'请针对问题选择您的回答',
+                                     'option':[['对问题的看法1','对问题的看法2','对问题的看法3','对问题的看法4'],['问题','1','2','3','4','5'],[]],
+                                     'changeable':-1,
+                                   }
+                                 })
+                 break;
                case "timeslot":
                  this.questions.push({
                                      type:"timeslot",

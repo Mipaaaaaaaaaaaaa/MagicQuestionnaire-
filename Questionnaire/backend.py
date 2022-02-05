@@ -127,7 +127,7 @@ def get_surveyanswer(survey_id):
 def get_surveydetail(survey_id):
     try:
         s_detail = SurveyList.objects.get(UUID_S=survey_id)
-        print('没找到问卷：',survey_id)
+        print('找到问卷：',survey_id)
     except SurveyList.DoesNotExist:
         return False, 'unknown', None, None, None, None
     Q_list = QuestionDetail.objects.filter(UUID_S=survey_id)
@@ -144,6 +144,7 @@ def get_surveydetail(survey_id):
     survey_description = s_detail.SurveyDescription
     survey_type = s_detail.SurveyType
     survey_status = s_detail.SurveyStatus
+    print(True, survey_name, survey_description, survey_type, survey_status, res_Qlist)
     return True, survey_name, survey_description, survey_type, survey_status, res_Qlist
 
 
@@ -240,6 +241,6 @@ def checkfilled(request, P_UUID_S):
             hasname = AnswerRecord.objects.get(username=request.user.username)
         except:
             filled = True
-    print('没填过',filled)
+    print('填过',filled)
     return filled
 
