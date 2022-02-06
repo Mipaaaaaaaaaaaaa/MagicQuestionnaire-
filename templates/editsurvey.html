@@ -352,7 +352,7 @@
                 survey_description: this.survey_description,
                 survey_type: this.survey_type,
                 survey_status: this.survey_status,
-                bDelete: tempquestionlist===questionlist
+                bDelete: JSON.stringify(tempquestionlist)!=JSON.stringify(questionlist)
             }
             console.log(req);
             let _self = this;
@@ -361,8 +361,22 @@
                 _self.$message({
                  type: 'success',
                  message: '保存修改'
-               });
-            })
+               });            
+               _self.tmpquestions.length=0;
+               _self.questions.map((item,index) =>{
+               _self.tmpquestions.push({
+                 type:item.type,
+                 title:item.title,
+                 changeableTitle:false,
+                 changeableDescription:false,
+                 option:{
+                   'option': item.option.option,
+                   'description':item.option.description,
+                   'changeable':-1,
+                 }
+               })
+              })
+          })
          },
          resetData(){
            let _self=this;
