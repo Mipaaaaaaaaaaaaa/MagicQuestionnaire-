@@ -203,7 +203,8 @@
         <template v-for="(sample,idx) in item.option.option[1]">
         <el-table-column
           label="sample"
-          width="180">
+          width="180"
+          align="center">
           <template slot="header" slot-scope="scope">
             <p v-if="item.option.changeable !== (idx+1)*10" >{%verbatim%}{{item.option.option[1][idx]}}{%endverbatim%}</p>
             <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="item.option.option[1].splice(idx,1)" v-if="item.option.changeable !== (idx+1)*10" ></el-button>

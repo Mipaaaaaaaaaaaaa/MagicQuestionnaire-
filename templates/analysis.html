@@ -15,15 +15,17 @@
           <strong>{%verbatim%}{{survey.number}}{%endverbatim%}</strong>
           份
         </div>
+        
       </el-col>
       <el-col style="width:50%">
         <el-row>
           <h5 style="width:85%;">{%verbatim%}{{survey.description}}{%endverbatim%}</h5>
         </el-row>
         <el-row>
-          <el-switch v-model="survey.status" active-text="开启问卷" disabled></el-switch>
-          <el-switch v-model="survey.type" active-text="允许匿名" style="margin-left:20px" disabled>
-          </el-switch>
+            <el-switch v-model="survey.status" active-text="开启问卷" disabled ></el-switch>
+            <el-switch v-model="survey.type" active-text="允许匿名" disabled ></el-switch>
+            <el-divider direction="vertical"></el-divider>
+            <el-button size="mini"><a :href="exportURL">导出文件</a></el-button>
         </el-row>
       </el-col>
     </el-row>
@@ -94,7 +96,9 @@
           status: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.SurveyStatus,
           type: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.SurveyType,
           number: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.number,
+          uuid_s: JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.UUID_S,
         },
+        exportURL: "/surveyreport/"+JSON.parse("{{jsondata|escapejs}}").data.surveyinfo.UUID_S,
         questions: [],
         //answers: [new Array(JSON.parse("{{jsondata|escapejs}}").data.questionlist.length)],
         answers: ans,
@@ -217,7 +221,7 @@
             time: item.Time,
           });
         })
-      }
+      },
     }
   })
 </script>

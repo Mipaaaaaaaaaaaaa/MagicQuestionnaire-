@@ -79,14 +79,14 @@ def get_surveyreport(survey_id):
     sheet.write(0, 2, '选项/回答')
     sheet.write(0, 3, '时间')
     for i in range(len(s_answer)):
-        sheet.write(i + 1, 0, s_answer.username)
-        sheet.write(i + 1, 0, s_answer.ANum)
-        sheet.write(i + 1, 0, s_answer.AOptions)
-        sheet.write(i + 1, 0, s_answer.Time)
+        sheet.write(i + 1, 0, s_answer[i].username)
+        sheet.write(i + 1, 1, s_answer[i].ANum)
+        sheet.write(i + 1, 2, s_answer[i].AOptions)
+        sheet.write(i + 1, 3, s_answer[i].Time.strftime("%Y-%m-%d %H:%M:%S"))
     file_path = './Reports/' + survey_id + '.xls'
     xls.save(file_path)
     file_path = os.path.join(settings.BASE_DIR, file_path)
-    file_name = s_info.SurveyName+'.xls'
+    file_name = s_info.SurveyName +'.xls'
     # print('文件保存在：',file_path)
     return file_path, file_name
 
@@ -149,6 +149,7 @@ def get_surveydetail(survey_id):
 
 
 def checkeditpermission(uname, P_UUID_S):
+    print(P_UUID_S)
     try:
         s = SurveyList.objects.get(username=uname, UUID_S=P_UUID_S)
         success = True
@@ -235,12 +236,12 @@ def checkfilled(request, P_UUID_S):
             hascookie = request.COOKIE.get(P_UUID_S)
             print('cookie exists',hascookie.values())
         except:
-            filled = True
+            filled = False
     else:
         try:
             hasname = AnswerRecord.objects.get(username=request.user.username)
         except:
-            filled = True
+            filled = False
     print('填过',filled)
     return filled
 
