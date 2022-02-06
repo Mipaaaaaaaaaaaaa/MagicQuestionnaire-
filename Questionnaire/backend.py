@@ -235,11 +235,13 @@ def checkfilled(request, P_UUID_S):
         try:
             hascookie = request.COOKIE.get(P_UUID_S)
             print('cookie exists',hascookie.values())
+            filled = True
         except:
             filled = False
     else:
         try:
             hasname = AnswerRecord.objects.get(username=request.user.username)
+            filled = True
         except:
             filled = False
     print('填过',filled)
