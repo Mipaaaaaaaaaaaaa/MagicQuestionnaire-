@@ -209,10 +209,10 @@
                   type:'success',
                   message:'提交成功'
                 });
-                // setTimeout(()=>{
-                //   //router.push({'path':`/thanks/${_self.uuid_s}`})
-                  // window.location.replace(resp)
-                // },100)
+                setTimeout(()=>{
+                  window.location.replace(resp);
+                  window.location.reload();
+                },100)
             })
            }
          },

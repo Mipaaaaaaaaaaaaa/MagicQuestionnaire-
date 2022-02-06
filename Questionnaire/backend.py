@@ -191,7 +191,8 @@ def fill_survey(uuid_s, answerlist, username):
         a = AnswerRecord(UUID_S=uuid_s, username=username, ANum=ans['ANum'], AOptions=ans['AOptions'])
         a.save()
 
-def edit_survey(uuid_s, belong2user, s_name, s_description, s_type, survey_status,editlist):
+def edit_survey(uuid_s, belong2user, s_name, s_description, s_type, survey_status,editlist,bDelete):
+    flag = False
     try:
         SurveyList.objects.get(UUID_S=uuid_s)
     except:
@@ -207,10 +208,11 @@ def edit_survey(uuid_s, belong2user, s_name, s_description, s_type, survey_statu
         print('qlist:',qedit)
         print('qdesc',qedit['QDescription'])
         q = QuestionDetail(UUID_S=uuid_s, QNumber=qedit['QNumber'],
-                           QType=qedit['QType'], QDescription=qedit['QDescription'], QOptions=qedit['QOptions'], QTitle=qedit['QTitle'])
+                        QType=qedit['QType'], QDescription=qedit['QDescription'], QOptions=qedit['QOptions'], QTitle=qedit['QTitle'])
         q.save()
-    AnswerRecord.objects.filter(UUID_S=uuid_s).delete()
-
+    if bDelete:
+        AnswerRecord.objects.filter(UUID_S=uuid_s).delete()
+        
 def iter_file(path, size=1024):
     with open(path, "rb", ) as f:
         for data in iter(lambda: f.read(size), b''):
@@ -233,15 +235,17 @@ def checkfilled(request, P_UUID_S):
     sdetail = SurveyList.objects.get(UUID_S=P_UUID_S)
     if sdetail.SurveyType == True:
         try:
-            hascookie = request.COOKIE.get(P_UUID_S)
-            print('cookie exists',hascookie.values())
-            filled = True
+            hascookie = request.COOKIES.get(P_UUID_S)
+            print('cookie exists',hascookie)
+            if hascookie != None:
+                filled = True
         except:
             filled = False
     else:
         try:
-            hasname = AnswerRecord.objects.get(username=request.user.username)
-            filled = True
+            hasname = AnswerRecord.objects.filter(username=request.user.username,UUID_S=P_UUID_S)
+            if hasname:
+                filled = True
         except:
             filled = False
     print('填过',filled)

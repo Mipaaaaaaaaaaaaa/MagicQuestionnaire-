@@ -246,6 +246,7 @@
            questions: [],
            changeableTitle: false,
            changeableDescription: false,
+           tmpquestions: [], //用于比较是否修改问题
            changeIndex: "",
            value: "",
            survey_title: JSON.parse("{{jsondata|escapejs}}").data.survey_name,
@@ -287,6 +288,17 @@
                 'changeable':-1,
               }
             })
+            this.tmpquestions.push({
+              type:item.QType,
+              title:item.QTitle,
+              changeableTitle:false,
+              changeableDescription:false,
+              option:{
+                'option': item.QOptions === '' ? "" : JSON.parse(item.QOptions),
+                'description':item.QDescription,
+                'changeable':-1,
+              }
+            })
           })
          },
          returnIndex(){
@@ -313,6 +325,7 @@
           },
          saveData(){
             let questionlist = [];
+            let tempquestionlist = [];
             this.questions.map((item,index) =>{
                 questionlist.push({
                     QNumber: index+1,
@@ -322,6 +335,15 @@
                     QOptions: item.option.option ? JSON.stringify(item.option.option) : "",
                 })
             })
+            this.tmpquestions.map((item,index) =>{
+              tempquestionlist.push({
+                  QNumber: index+1,
+                  QType: item.type,
+                  QDescription: item.option.description,
+                  QTitle: item.title,
+                  QOptions: item.option.option ? JSON.stringify(item.option.option) : "",
+              })
+          })
             let req = {
                 uuid_s: this.uuid_s,
                 username: this.username,
@@ -329,7 +351,8 @@
                 survey_name: this.survey_title,
                 survey_description: this.survey_description,
                 survey_type: this.survey_type,
-                survey_status: this.survey_status
+                survey_status: this.survey_status,
+                bDelete: tempquestionlist===questionlist
             }
             console.log(req);
             let _self = this;

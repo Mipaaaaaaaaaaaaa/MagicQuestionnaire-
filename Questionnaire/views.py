@@ -139,14 +139,22 @@ def surveydetail(request, UUID_S):
             return render(request, 'handle.html',{'jsondata': json.dumps(res),'htmldata' :res})
         else:
             if list_Q is not None:
-                context['success'] = True
-                context['data']['survey_name'] = survey_name
-                context['data']['survey_description'] = survey_description
-                context['data']['survey_type'] = survey_type
-                context['data']['survey_status'] = survey_status
-                context['data']['questionlist'] = list_Q
-                context['data']['uuid_s'] = UUID_S
-                return render(request, 'surveydetail.html', {'jsondata': json.dumps(context), 'htmldata': context})
+                if survey_status is False:
+                    print('该问卷未开放')
+                    res={}
+                    res['data']={}
+                    res['data']['message']='该问卷暂未开放'
+                    res['data']['messagetitle']='该问卷暂未开放，请稍后再试'
+                    return render(request, 'handle.html',{'jsondata': json.dumps(res),'htmldata' :res})
+                else:
+                    context['success'] = True
+                    context['data']['survey_name'] = survey_name
+                    context['data']['survey_description'] = survey_description
+                    context['data']['survey_type'] = survey_type
+                    context['data']['survey_status'] = survey_status
+                    context['data']['questionlist'] = list_Q
+                    context['data']['uuid_s'] = UUID_S
+                    return render(request, 'surveydetail.html', {'jsondata': json.dumps(context), 'htmldata': context})
             else:
                 print('未能成功获取题目列表')
                 context['data']['message'] = '未能成功获取题目列表'
@@ -315,9 +323,10 @@ def editfinish(request, UUID_S):
     survey_type = data.get('survey_type')
     survey_status = data.get('survey_status')
     list_Q = data.get('questionlist')
+    bDelete = data.get('bDelete')
     belong2user = request.user.username
     edit_survey(UUID_S, belong2user, survey_name, survey_description,
-                    survey_type, survey_status, list_Q)
+                    survey_type, survey_status, list_Q, bDelete)
     return JsonResponse(context)
 
 
