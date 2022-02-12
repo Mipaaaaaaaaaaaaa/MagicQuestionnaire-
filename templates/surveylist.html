@@ -77,11 +77,11 @@
     },
 
     mounted() {
-      console.log(this.tableData)
+      //console.log(this.tableData)
     },
     methods: {
       Logout() {
-        console.log("登出")
+        //console.log("登出")
         this.$message({
           type: 'info',
           message: '登出账户'
@@ -97,7 +97,7 @@
         }
         let _self = this;
         axios.post('/createsurvey/', req, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(function (res) {
-          console.log(res)
+          //console.log(res)
           if (res.data.success === true) {
             _self.$confirm('创建成功，是否进入编辑页面？', '创建成功', {
               confirmButtonText: '确定',
@@ -146,15 +146,15 @@
             message: '取消删除'
           })
         })
-        console.log(index, row);
+        //console.log(index, row);
       },
       handleEdit(index, row) {
-        console.log(index, row);
+        //console.log(index, row);
         this.$router.replace(`/editsurvey/${this.tableData[index].UUID_S}`);
         window.location.reload();
       },
       handleShare(index, row) {
-        console.log(index, row);
+        //console.log(index, row);
         var Url = ip + `/survey/${this.tableData[index].UUID_S}`;
         var oInput = document.createElement('input');
         oInput.value = Url;
@@ -169,7 +169,7 @@
         })
       },
       handleAnalyse(index, row) {
-        console.log(index, row);
+        //console.log(index, row);
         this.$router.push(`/surveyanalysis/${this.tableData[index].UUID_S}`)
         window.location.reload();
       },

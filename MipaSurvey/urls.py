@@ -20,6 +20,9 @@ from django.contrib.auth.decorators import login_required
 from Questionnaire.views import *
 from django.conf.urls import url
 
+from django.views import static ##新增
+from django.conf import settings ##新增
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     # url(r'^$', index),
@@ -39,4 +42,5 @@ urlpatterns = [
     path('surveyswitch/<str:UUID_S>', surveyswitch),
     path('editfinish/<str:UUID_S>', editfinish),
     path('myhome/',userdetail),
+    url(r'^static/(?P<path>.*)$', static.serve, {'document_root': settings.STATIC_ROOT }, name='static'),
 ]

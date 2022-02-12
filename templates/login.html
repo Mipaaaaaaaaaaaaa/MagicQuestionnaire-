@@ -184,14 +184,14 @@
                     // 去除数组空值
                     data = data.filter(item => item)
                     if (!data.length) {
-                        console.log('通过验证')
+                        //console.log('通过验证')
                         let req = {
                             'type': 'login',
                             'username': _self.ruleForm.username,
                             'password': hex_md5(_self.ruleForm.password),
                         };
                         axios.post(`/loginresult/`, req, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}).then(function (resp) {
-                            console.log(resp);
+                            //console.log(resp);
                             if( resp.data.success === false ){
                                 alert(resp.data.data.error_message)
                             }
@@ -207,7 +207,7 @@
                             }
                         }.bind(_self))
                     } else {
-                        console.log('验证不通过')
+                        //console.log('验证不通过')
                         alert("8行哦");
                     }
                 })
@@ -217,7 +217,7 @@
             },
             //注册
             signup() {
-                console.log('注册啦注册啦！')
+                //console.log('注册啦注册啦！')
                 let _self = this;
                 _self.$refs['ruleForm'].validate((valid) => {
                     if (valid) {

@@ -87,7 +87,7 @@
           ans.push([]);
           currentPage.push(1);
       }
-      console.log(JSON.parse("{{jsondata|escapejs}}").data);
+      //console.log(JSON.parse("{{jsondata|escapejs}}").data);
       return{
         nickname: JSON.parse("{{jsondata|escapejs}}").data.NickName,
         survey:{
@@ -133,18 +133,18 @@
             // _res.title.push(_self.questions[index].option.option[i]);
             // _res.num.push(count)
         }
-        console.log(_res)
+        //console.log(_res)
         return _res;
       },
       initChars(){
         let res = {};
         let _self = this;
-        console.log(_self.questions)
+        //console.log(_self.questions)
         _self.questions.map( (item,index) =>{
           res = _self.mergeAnswer(index)
           if( item.type === 'select' || item.type === 'multiselect' || item.type === 'drop' ){
             // var myChart = echarts.init(document.getElementById('charts'+index));
-            console.log(_self.questions[index].option)
+            //console.log(_self.questions[index].option)
             var option = {
               title: {
                 text: `第${index+1}题`,
@@ -175,15 +175,15 @@
                 }
               }],
             };
-            console.log(`charts${index}`)
-            console.log(document.getElementById(`charts${index}`))
+            //console.log(`charts${index}`)
+            //console.log(document.getElementById(`charts${index}`))
             var myChart = echarts.init(document.getElementById(`charts${index}`));
             myChart.setOption(option);
             _self.Chart.push({
               myChart: myChart,
               option: option
             });
-            console.log(_self.Chart)
+            //console.log(_self.Chart)
           }
         })
       },
@@ -191,10 +191,10 @@
         this.$set(this.currentPage,index,val);
       },
       onSubmit(){
-        console.log(this.mergeAnswer(0))
+        //console.log(this.mergeAnswer(0))
       },
       initQuestion() {
-        console.log(JSON.parse("{{jsondata|escapejs}}"))
+        //console.log(JSON.parse("{{jsondata|escapejs}}"))
         let vm = this;
         let temptable = JSON.parse("{{jsondata|escapejs}}").data.questionlist;
         let temptable2 = JSON.parse("{{jsondata|escapejs}}").data.answerlist;

@@ -260,7 +260,7 @@
        },
        mounted() {
          this.initFormData()
-         console.log(this.questions)
+         //console.log(this.questions)
        },
        computed: {},
        methods: {
@@ -276,7 +276,7 @@
           let vm = this;
           let temptable = JSON.parse("{{jsondata|escapejs}}").data.questionlist;
           temptable.map((item)=>{
-            console.log(item)
+            //console.log(item)
             this.questions.push({
               type:item.QType,
               title:item.QTitle,
@@ -354,7 +354,7 @@
                 survey_status: this.survey_status,
                 bDelete: JSON.stringify(tempquestionlist)!=JSON.stringify(questionlist)
             }
-            console.log(req);
+            //console.log(req);
             let _self = this;
             axios.post(`/editfinish/${this.uuid_s}`, req, 
             {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}).then(function (resp) {
@@ -581,7 +581,7 @@
                                    })
                  break;
            }
-           console.log(this.questions);
+           //console.log(this.questions);
          },
        }
      })

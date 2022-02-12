@@ -146,7 +146,7 @@
             remove(name) {
                 index = this.fieldsChange.indexOf(name);
                 this.fieldsChange.splice(index, 1);
-                console.log(this.fieldsChange)
+                //console.log(this.fieldsChange)
             },
             generatedCode() {
                 const random = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
@@ -159,7 +159,7 @@
                 this.inicode = code;
             },
             Logout() {
-                console.log("登出")
+                //console.log("登出")
                 this.$message({
                     type: 'info',
                     message: '登出账户'
@@ -180,7 +180,7 @@
                 })).then((data) => {
                     data = data.filter(item => item)
                     if (!data.length) {
-                        console.log('通过验证')
+                        //console.log('通过验证')
                         let req = {
                             'username': _self.ruleForm.username,
                             'password': _self.fieldsChange.includes('password') ? hex_md5(_self.ruleForm.password) : '',
@@ -188,7 +188,7 @@
                             'phonenumber': _self.ruleForm.phonenumber,
                             'nickname': _self.ruleForm.nickname
                         }
-                        console.log(req)
+                        //console.log(req)
                         axios.post(`/changeuserinfo/`, req,
                             { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(function (resp) {
                                 _self.$message({

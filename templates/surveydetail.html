@@ -153,7 +153,7 @@
        computed: {},
        methods: {
         Logout(){
-          console.log("登出")
+          //console.log("登出")
             this.$message({
                 type: 'info',
                 message: '登出账户'
@@ -165,7 +165,7 @@
           let vm = this;
           let temptable = JSON.parse("{{jsondata|escapejs}}").data.questionlist;
           temptable.map((item)=>{
-            console.log(item)
+            //console.log(item)
             this.questions.push({
               type:item.QType,
               title:item.QTitle,
@@ -199,10 +199,10 @@
                })
                flag = true;
              }
-             console.log(req)
+             //console.log(req)
            })
            if( !flag ){
-            console.log(req);
+            //console.log(req);
             axios.post(`/fillresult/${_self.uuid_s}`, req, 
             {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }}).then(function (resp) {
                 _self.$message({
